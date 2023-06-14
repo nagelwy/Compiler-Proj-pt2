@@ -10,14 +10,10 @@
 #define MAX_IDENT 11
 #define MAX_NUM 5
 
-FILE* loadFile(char *filename);
-char** getSource(FILE *fp, char **source);
-void printSource(char **source);
-int isNumber(char *string);
-void addToken(int token, char *lexeme);
-void printLexemeTable();
-void printLexemeList();
-int isKeyword(char *lexeme);
+typedef struct token {
+    int num;
+    char *ident;
+} token;
 
 typedef enum {
     skipsym = 1, identsym, numbersym, plussym, minussym,
@@ -34,24 +30,44 @@ char *keywords[] = {
 };
 
 typedef struct Token {
-	int num;
+	token_type type;
 	char ident[12];
+	int num;
 } Token;
+
+FILE* loadFile(char *filename);
+
+char** getSource(FILE *fp, char **source);
+void printSource(char **source);
+
+void createTokens(char** source);
+void addToken(char* string);
+
+int getType(Token t);
+
+void printLexemeTable();
+void printLexemeList();
+
+int isNumber(char *string);
+int isKeyword(char *lexeme);
+int isSpecial(char c);
+
+int progLen = 0;
 
 Token lexemeTable[MAX_ARRAY];
 int lexemeCount = 0;
 
+int main(int argc, char **argv)
+{
+    // Opens file for reading
+    FILE *fp = loadFile(argv[1]);
 
-int main(int argc, char **argv) {
-	// Opens file for reading
-	FILE *fp = loadFile(argv[1]);
+    char **source = NULL;
+    source = getSource(fp, source);FILE *loadFile(char *filename);
 
-	char **source = NULL;
-	source = getSource(fp, source);
+	// printSource(source);
 
-	printSource(source);
-
-	//addToken(numbersym, "test");
+	// addToken(numbersym, "test");
 
 	/* Here we can start the switch and go through the array (probably a while loop)
 	 * We check if it's a character, digit, or symbol.
@@ -70,9 +86,12 @@ int main(int argc, char **argv) {
 	 * i.e.  case '+': addToken(plussym, lexeme); break;
 	 */
 
+	createTokens(source);
+
 	printLexemeTable();
 	printLexemeList();
 
+    printSource(source);
 }
 // Function to open file for reading and checks for NULL value
 FILE* loadFile(char *filename) {
@@ -87,16 +106,14 @@ FILE* loadFile(char *filename) {
 	while ((c = fgetc(file)) != EOF) {
 		putchar(c);
 	}
-	rewind(file);  // Reset file pointer to the beginning
+	// Reset file pointer to the beginning
+	rewind(file);
 
-	printf("\n\n");
-
-
+	printf("\n");
 	return file;
 }
 char** getSource(FILE *fp, char **source) {
 	source = malloc(MAX_ARRAY * sizeof(char*));
-	int i = 0;
 	do {
 		char *temp = malloc(12 * sizeof(char));
 		fscanf(fp, "%s ", temp);
@@ -105,10 +122,10 @@ char** getSource(FILE *fp, char **source) {
 		}
 		// error
 
-		source[i] = malloc((strlen(temp) + 1) * sizeof(char));
-		strcpy(source[i], temp);
+		source[progLen] = malloc((strlen(temp) + 1) * sizeof(char));
+		strcpy(source[progLen], temp);
 
-		i++;
+		progLen++;
 		free(temp);
 	} while (!feof(fp));
 
@@ -117,35 +134,139 @@ char** getSource(FILE *fp, char **source) {
 	return source;
 }
 
-void addToken(int token, char *lexeme) {
-    Token t;
-    t.num = token;
-    strncpy(t.ident, lexeme, sizeof(t.ident));
-    lexemeTable[lexemeCount++] = t;
+// Creates the lexeme table and adds each token to it
+void createTokens(char** source) {
+	// Loop through the entire source program
+	for (int i = 0; i < progLen; i++) {
+		// Current instruction to be tokenized
+		char curr[12];
+		strcpy(curr, source[i]);
+
+		// If it is a special character
+		if (isSpecial(curr[strlen(curr) - 1]))
+		{
+			char newCurr[strlen(curr)];
+
+			memset(newCurr, '\0', sizeof(newCurr));
+			strncpy(newCurr, curr, strlen(curr) - 1);
+			addToken(newCurr);
+
+			memset(newCurr, '\0', sizeof(newCurr));
+			newCurr[0] = curr[strlen(curr) - 1];
+			addToken(newCurr);
+		}
+	}
+}
+// Adds a lexeme token to the lexeme table
+void addToken(char* string) {
+	Token t;
+	// Checks if it is identifier
+    if (!isKeyword(string) && !isNumber(string) && !isSpecial(string[0]))
+	{
+		t.type = identsym;
+		strcpy(t.ident, string);
+		lexemeTable[lexemeCount++] = t;
+	}
+	else if (isSpecial(string[0]))
+	{
+		switch (string[0])
+		{
+			case '+':
+				break;
+			case '-':
+				break;
+			case '*':
+				break;
+			case '/':
+				break;
+			case '(':
+				break;
+			case ')':
+				break;
+			case '=':
+				break;
+			case ',':
+				t.type = commasym;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
+				break;
+			case '.':
+				break;
+			case '<':
+				break;
+			case '>':
+				break;
+			case ';':
+				break;
+			case ':':
+				break;
+			default:
+				break;
+		}
+	}
+}
+// Checks if token type is a string or number
+int getType(Token t) {
+	if (t.type == skipsym ||
+		t.type == identsym ||
+		t.type == beginsym ||
+		t.type == endsym ||
+		t.type == ifsym ||
+		t.type == thensym ||
+		t.type == whilesym ||
+		t.type == dosym ||
+		t.type == readsym ||
+		t.type == writesym ||
+		isSpecial(t.ident[0]))
+		return 1;
+	else
+		return 0;
 }
 
-
-
+// Prints the lexem table
 void printLexemeTable() {
     printf("Lexeme Table:\n\n");
     printf("lexeme\t\ttoken type\n");
     printf("------------------------\n");
     for (int i = 0; i < lexemeCount; i++) {
-        printf("%s\t\t%d\n", lexemeTable[i].ident, lexemeTable[i].num);
+		// Checks if lexeme is number or word
+        if (getType(lexemeTable[i]))
+			printf("%s\t\t%d\n", lexemeTable[i].ident, lexemeTable[i].type);
+		else
+			printf("%d\t\t%d\n", lexemeTable[i].num, lexemeTable[i].type);
     }
     printf("\n");
 }
-
-
+// Prints the lexeme list
 void printLexemeList() {
     printf("Lexeme List:\n");
     for (int i = 0; i < lexemeCount; i++) {
-        printf("%d %s ", lexemeTable[i].num, lexemeTable[i].ident);
-    }
+		// Checks if to print identifier or not
+		if (lexemeTable[i].type == identsym)
+			printf("%d %s ", lexemeTable[i].type, lexemeTable[i].ident);
+		else
+			printf("%d ", lexemeTable[i].type);
+	}
     printf("\n");
 }
 
 
+void printSource(char **source) {
+	for (int i = 0; i < progLen; i++)
+		printf("%s\n", source[i]);
+}
+
+// Function to check if string is a number or has other symbols in it
+int isNumber(char *string) {
+	int i = strlen(string);
+	while (i--) {
+		if (string[i] > 47 && string[i] < 58)
+			continue;
+		return 0;
+	}
+	return 1;
+}
+// Checks if string is a keyword or not
 int isKeyword(char *lexeme) {
 	int i;
     for (i = 0; keywords[i] != NULL; i++) {
@@ -186,24 +307,21 @@ int isKeyword(char *lexeme) {
     }
     return 0; // Not a keyword
 }
-
-void printSource(char **source) {
-	int i = 0;
-	while (source[i] != NULL) {
-		printf("%s\n", source[i]);
-
-		i++;
-	}
-
-}
-
-// Function to check if string is a number or has other symbols in it
-int isNumber(char *string) {
-	int i = strlen(string);
-	while (i--) {
-		if (string[i] > 47 && string[i] < 58)
-			continue;
-		return 0;
-	}
-	return 1;
+// Checks if character is special or not
+int isSpecial(char c) {
+	if (c == '+' ||
+		c == '-' ||
+		c == '*' ||
+		c == '/' ||
+		c == '(' ||
+		c == ')' ||
+		c == ',' ||
+		c == '=' ||
+		c == '.' ||
+		c == '<' ||
+		c == '>' ||
+		c == ';' ||
+		c == ':')
+		return 1;
+	return 0;
 }
