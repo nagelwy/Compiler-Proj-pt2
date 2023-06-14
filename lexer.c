@@ -91,7 +91,7 @@ int main(int argc, char **argv)
 	printLexemeTable();
 	printLexemeList();
 
-    printSource(source);
+   // printSource(source);
 }
 // Function to open file for reading and checks for NULL value
 FILE* loadFile(char *filename) {
@@ -172,18 +172,39 @@ void addToken(char* string) {
 		switch (string[0])
 		{
 			case '+':
+				t.type = plussym;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
 				break;
 			case '-':
+				t.type = minussym;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
 				break;
 			case '*':
+				t.type = multsym;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
 				break;
 			case '/':
+				t.type = slashsym;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
 				break;
 			case '(':
+				t.type = lparentsym;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
 				break;
 			case ')':
+				t.type = rparentsym;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
 				break;
 			case '=':
+				t.type = eqlsym;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
 				break;
 			case ',':
 				t.type = commasym;
@@ -191,14 +212,29 @@ void addToken(char* string) {
 				lexemeTable[lexemeCount++] = t;
 				break;
 			case '.':
+				t.type = periodsym;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
 				break;
 			case '<':
+				t.type = 9999;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
 				break;
 			case '>':
+				t.type = 9999;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
 				break;
 			case ';':
+				t.type = semicolonsym;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
 				break;
 			case ':':
+				t.type = 9999;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
 				break;
 			default:
 				break;
