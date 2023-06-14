@@ -10,15 +10,11 @@
 #define MAX_IDENT 11
 #define MAX_NUM 5
 
-<<<<<<< Updated upstream
 typedef struct token {
     int num;
     char *ident;
 } token;
 
-FILE *loadFile(char *filename);
-char **getSource(FILE *fp, char **source);
-=======
 typedef enum {
     skipsym = 1, identsym, numbersym, plussym, minussym,
     multsym, slashsym, xorsym, eqlsym, neqsym, lessym, leqsym,
@@ -42,7 +38,6 @@ typedef struct Token {
 FILE* loadFile(char *filename);
 
 char** getSource(FILE *fp, char **source);
->>>>>>> Stashed changes
 void printSource(char **source);
 
 void createTokens(char** source);
@@ -67,12 +62,8 @@ int main(int argc, char **argv)
     // Opens file for reading
     FILE *fp = loadFile(argv[1]);
 
-<<<<<<< Updated upstream
     char **source = NULL;
-    source = getSource(fp, source);
-=======
-	char **source = NULL;
-	source = getSource(fp, source);
+    source = getSource(fp, source);FILE *loadFile(char *filename);
 
 	// printSource(source);
 
@@ -99,25 +90,10 @@ int main(int argc, char **argv)
 
 	printLexemeTable();
 	printLexemeList();
->>>>>>> Stashed changes
 
     printSource(source);
 }
 // Function to open file for reading and checks for NULL value
-<<<<<<< Updated upstream
-FILE *loadFile(char *filename)
-{
-    FILE *file = fopen(filename, "r");
-    if (file == NULL) {
-        printf("Error opening file");
-        exit(1);
-    }
-    return file;
-}
-char **getSource(FILE *fp, char **source)
-{
-    source = malloc(MAX_ARRAY * sizeof(char*));
-=======
 FILE* loadFile(char *filename) {
 	FILE *file = fopen(filename, "r");
 	if (file == NULL) {
@@ -141,61 +117,22 @@ char** getSource(FILE *fp, char **source) {
 	do {
 		char *temp = malloc(12 * sizeof(char));
 		fscanf(fp, "%s ", temp);
->>>>>>> Stashed changes
 
-    int buffer;
-    int i = 0;
-    do {
-        char *temp = malloc(12 * sizeof(char));
-        fscanf(fp, "%s ", temp);
+		if (strlen(temp) > MAX_IDENT) {
+		}
+		// error
 
-<<<<<<< Updated upstream
-        if (strlen(temp) > MAX_IDENT) {}
-            // error
-        
-        source[i] = malloc((strlen(temp) + 1) * sizeof(char));
-        strcpy(source[i], temp);
-
-        i++;
-        free(temp);
-    } while (!feof(fp));
-=======
 		source[progLen] = malloc((strlen(temp) + 1) * sizeof(char));
 		strcpy(source[progLen], temp);
 
 		progLen++;
 		free(temp);
 	} while (!feof(fp));
->>>>>>> Stashed changes
 
-    // Close the file and return the program array
-    fclose(fp);
-    return source;
+	// Close the file and return the program array
+	fclose(fp);
+	return source;
 }
-<<<<<<< Updated upstream
-void printSource(char **source)
-{
-    int i = 0;
-    while (source[i] != NULL)
-    {
-        printf("%s\n", source[i]);
-
-        i++;
-    }
-    
-}
-
-// Function to check if string is a number or has other symbols in it
-int isNumber(char *string)
-{
-    int i = strlen(string);
-    while (i--) {
-        if (string[i] > 47 && string[i] < 58)
-            continue;
-        return 0;
-    }
-    return 1;
-=======
 
 // Creates the lexeme table and adds each token to it
 void createTokens(char** source) {
@@ -387,5 +324,4 @@ int isSpecial(char c) {
 		c == ':')
 		return 1;
 	return 0;
->>>>>>> Stashed changes
 }
