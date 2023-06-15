@@ -51,6 +51,7 @@ void printLexemeList();
 int isNumber(char *string);
 int isKeyword(char *lexeme);
 int isSpecial(char c);
+int isSpecialCase(char *string);
 
 int progLen = 0;
 
@@ -84,14 +85,14 @@ int main(int argc, char **argv)
 	 *
 	 * then we check the symbols and use a switch statement and add them that way
 	 * i.e.  case '+': addToken(plussym, lexeme); break;
-	 */
+	*/
 
 	createTokens(source);
 
 	printLexemeTable();
 	printLexemeList();
 
-    printSource(source);
+   // printSource(source);
 }
 // Function to open file for reading and checks for NULL value
 FILE* loadFile(char *filename) {
@@ -161,29 +162,57 @@ void createTokens(char** source) {
 void addToken(char* string) {
 	Token t;
 	// Checks if it is identifier
-    if (!isKeyword(string) && !isNumber(string) && !isSpecial(string[0]))
+    if (!isKeyword(string) && !isNumber(string) && !isSpecial(string[0]) && !isSpecialCase(string))
 	{
+		// Check string length
+		if (strlen(string) > 11)
+		{
+			// error
+		}
+
 		t.type = identsym;
 		strcpy(t.ident, string);
 		lexemeTable[lexemeCount++] = t;
 	}
-	else if (isSpecial(string[0]))
+	// Checks if it is operator
+	else if (isSpecial(string[0]) && !isSpecialCase(string))
 	{
 		switch (string[0])
 		{
 			case '+':
+				t.type = plussym;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
 				break;
 			case '-':
+				t.type = minussym;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
 				break;
 			case '*':
+				t.type = multsym;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
 				break;
 			case '/':
+				t.type = slashsym;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
 				break;
 			case '(':
+				t.type = lparentsym;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
 				break;
 			case ')':
+				t.type = rparentsym;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
 				break;
 			case '=':
+				t.type = eqlsym;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
 				break;
 			case ',':
 				t.type = commasym;
@@ -191,31 +220,78 @@ void addToken(char* string) {
 				lexemeTable[lexemeCount++] = t;
 				break;
 			case '.':
+				t.type = periodsym;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
 				break;
 			case '<':
+				t.type = lessym;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
 				break;
 			case '>':
+				t.type = gtrsym;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
 				break;
 			case ';':
+				t.type = semicolonsym;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
 				break;
 			case ':':
+				t.type = 9999;
+				strcpy(t.ident, string);
+				lexemeTable[lexemeCount++] = t;
 				break;
 			default:
 				break;
 		}
 	}
+	// Checks if it is a special case
+	else if (isSpecialCase(string))
+	{
+		if (strcmp(string, ":="))
+		{
+			t.type = becomessym;
+			strcpy(t.ident, string);
+			lexemeTable[lexemeCount++] = t;
+		}
+		else if (strcmp(string, "<="))
+		{
+			t.type = leqsym;
+			strcpy(t.ident, string);
+			lexemeTable[lexemeCount++] = t;
+		}
+		else if (strcmp(string, ">="))
+		{
+			t.type = geqsym;
+			strcpy(t.ident, string);
+			lexemeTable[lexemeCount++] = t;
+		}
+		else if (strcmp(string, "<>"))
+		{
+			t.type = xorsym;
+			strcpy(t.ident, string);
+			lexemeTable[lexemeCount++] = t;
+		}
+	}
+	// else if ()
+	// {
+
+	// }
 }
 // Checks if token type is a string or number
 int getType(Token t) {
-	if (t.type == skipsym || 
-		t.type == identsym || 
-		t.type == beginsym || 
-		t.type == endsym || 
-		t.type == ifsym || 
-		t.type == thensym || 
-		t.type == whilesym || 
-		t.type == dosym || 
-		t.type == readsym || 
+	if (t.type == skipsym ||
+		t.type == identsym ||
+		t.type == beginsym ||
+		t.type == endsym ||
+		t.type == ifsym ||
+		t.type == thensym ||
+		t.type == whilesym ||
+		t.type == dosym ||
+		t.type == readsym ||
 		t.type == writesym ||
 		isSpecial(t.ident[0]))
 		return 1;
@@ -244,7 +320,7 @@ void printLexemeList() {
 		// Checks if to print identifier or not
 		if (lexemeTable[i].type == identsym)
 			printf("%d %s ", lexemeTable[i].type, lexemeTable[i].ident);
-		else 
+		else
 			printf("%d ", lexemeTable[i].type);
 	}
     printf("\n");
@@ -309,19 +385,28 @@ int isKeyword(char *lexeme) {
 }
 // Checks if character is special or not
 int isSpecial(char c) {
-	if (c == '+' || 
-		c == '-' || 
-		c == '*' || 
-		c == '/' || 
-		c == '(' || 
-		c == ')' || 
-		c == ',' || 
-		c == '=' || 
-		c == '.' || 
-		c == '<' || 
-		c == '>' || 
-		c == ';' || 
+	if (c == '+' ||
+		c == '-' ||
+		c == '*' ||
+		c == '/' ||
+		c == '(' ||
+		c == ')' ||
+		c == ',' ||
+		c == '=' ||
+		c == '.' ||
+		c == '<' ||
+		c == '>' ||
+		c == ';' ||
 		c == ':')
+		return 1;
+	return 0;
+}
+// Checks if string is one of the the following
+int isSpecialCase(char *string) {
+	if (!strcmp(string, ":=") || 
+		!strcmp(string, "<>") || 
+		!strcmp(string, "<=") || 
+		!strcmp(string, ">="))
 		return 1;
 	return 0;
 }
