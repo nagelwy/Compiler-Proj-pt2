@@ -106,7 +106,6 @@ char** getSource(FILE *fp, char **source) {
 		strcpy(source[progLen], temp);
 
 		progLen++;
-		free(temp);
 	} while (!feof(fp));
 
 	// Close the file and return the program array
@@ -116,8 +115,8 @@ char** getSource(FILE *fp, char **source) {
 
 // Creates the lexeme table and adds each token to it
 void createTokens(char** source) {
-	printf("\nLexeme Table:\n\n");
-    printf("lexeme\t\ttoken type\n");
+	printf("\nLexeme Table:\n");
+    printf("\tlexeme\t\ttoken type\n");
 	// Loop through the entire source program
 	for (int i = 0; i < progLen; i++) {
 		if (strlen(source[i]) > 12 && isSpecial(source[i][strlen(source[i]) - 1]))
@@ -173,10 +172,16 @@ void addToken(char* string) {
     if (isKeyword(string) == 0 && 
 		!isNumber(string) && 
 		!isSpecial(string[0]) && 
-		!isSpecialCase(string) && 
-		string[0] > 96 &&
-		string[0] < 123)
+		!isSpecialCase(string))
 	{
+		if (string[0] > 47 && string[0] < 58) {
+			printf("Error : Identifiers cannot begin with a digit\n");
+			return;
+		} else if (string[0] <= 96 || string[0] >= 123) {
+			printf("Error : Invalid Symbol\n");
+			return;
+		}	
+
 		t.type = identsym;
 		strcpy(t.ident, string);
 		lexemeTable[lexemeCount++] = t;
@@ -394,9 +399,9 @@ void addToken(char* string) {
 	if (!errorFlag)
 	{
 		if (t.type != numbersym)
-			printf("%s\t\t%d\n", t.ident, t.type);
+			printf("\t%s\t\t%d\n", t.ident, t.type);
 		else 
-			printf("%d\t\t%d\n", t.num, t.type);
+			printf("\t%d\t\t%d\n", t.num, t.type);
 	}
 }
 int checkNumber(int num) {
@@ -477,7 +482,7 @@ int isSpecialCase(char *string) {
 }
 // Prints the lexeme list
 void printLexemeList() {
-    printf("\nLexeme List:\n");
+    printf("\nToken List:\n");
     for (int i = 0; i < lexemeCount; i++) {
 		// Checks if to print identifier or not
 		if (lexemeTable[i].type == identsym)
